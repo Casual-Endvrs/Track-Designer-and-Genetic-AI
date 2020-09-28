@@ -10,14 +10,10 @@ Reddit: CasualEndvrs
 Twitter: @CasualEndvrs
 """
 
-# from PIL import Image, ImageDraw
 import numpy as np
 import pickle
 import os
-# import json
 # from bitarray import bitarray
-
-# from time import time as current_time
 
 class save_track_params() :
     def __init__(self, track_params) :

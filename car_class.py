@@ -181,7 +181,7 @@ class raceCar():
             
             if 'updates_per_frame' in param_keys :
                 if params['updates_per_frame'] is not None :
-                    self.updates_per_frame = params['updates_per_frame']
+                    self.updates_per_frame = int( params['updates_per_frame'] )
             
             if 'car_dimensions' in param_keys :
                 if params['car_dimensions'] is not None :
@@ -189,6 +189,10 @@ class raceCar():
             
             self.car_dimensions /= self.m_per_pxl
             self.center_to_corner = self.car_dimensions / 2
+            if self.car_dimensions[0] < 1 :
+                self.car_dimensions[0] = 1
+            if self.car_dimensions[1] < 1 :
+                self.car_dimensions[1] = 1
             
             self.v_max_full_steering_loc = np.sqrt(self.turn_radius * self.max_corner_g)
             self.calc_dt()
@@ -279,10 +283,10 @@ class raceCar():
             if self.vel_mag > self.v_max_full_steering_loc :
                 turn_radius = self.vel_mag**2 / self.max_corner_ms2
             
-            self.angle += self.steering*self.vel_mag*dt/turn_radius # check this line !!!!!!!!!!!!!!!!!!!!!
+            self.angle += self.steering*self.vel_mag*dt/turn_radius
             
             angle_avg = (angle_before+self.angle) / 2.
-            self.angle = self.angle % self.two_pi # this may be unnecessary
+            self.angle = self.angle % self.two_pi
             
             cos_dir = np.cos(angle_avg)
             sin_dir = np.sin(angle_avg)

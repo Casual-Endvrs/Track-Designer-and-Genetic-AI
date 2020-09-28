@@ -162,7 +162,8 @@ class trackDesigner_class() :
             
             if 'display_max_resolution' in param_keys :
                 if params['display_max_resolution'] is not None :
-                    self.display_max_resolution = params['display_max_resolution']
+                    self.display_max_resolution = np.array([ int(params['display_max_resolution'][0]), 
+                                                             int(params['display_max_resolution'][1]) ])
             
             if 'track_resolution' in param_keys :
                 if params['track_resolution'] is not None :
