@@ -20,7 +20,7 @@ from bitarray import bitarray
 import json
 
 class trackDesigner_class() :
-    def __init__(self, name_base=None, params_to_load=None) :
+    def __init__(self, name_base='', params_to_load=None) :
         self.display_max_resolution = [1750, 1000]
         self.display_resolution = self.display_max_resolution
         self.window_width = 1200 # 1750
@@ -62,14 +62,12 @@ class trackDesigner_class() :
         self.track_inside_val = 0.1
         self.track_outside_val = 0.1
         
-        self.track_name = None
+        self.track_name = name_base
         
         self.cwd = os.getcwd()
         self.load_saved_params(params_to_load)
         
-        if name_base is not None :
-            self.track_name = name_base
-        if self.track_name is None :
+        if self.track_name is '' :
             self.track_name = 'track'
     
     def reset_track(self) :
@@ -157,7 +155,7 @@ class trackDesigner_class() :
             param_keys = params.keys()
             
             if 'track_name' in param_keys :
-                if params['track_name'] is not None :
+                if params['track_name'] != '' :
                     self.track_name = params['track_name']
             
             if 'display_max_resolution' in param_keys :
@@ -680,7 +678,7 @@ class trackDesigner_class() :
 def create_default_params() :
     # create json preferences file for trackDesigner_class.py
     preferences = {
-        'track_name': None, # name base to use during saving
+        'track_name': "track", # name base to use during saving
         'display_max_resolution': [1750, 1000], # sets the maximum resolution that will be displayed to the user
         'track_resolution': [1200, 1000], # sets the resolution for the track
         'm_per_pxl': 0.2, # number of meters per pixel

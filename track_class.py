@@ -143,6 +143,10 @@ class raceTrack() :
                 diff = tmp-tmp1
                 dists = np.sqrt( np.sum(diff**2, axis=1) )
                 max_dists.append( max(dists) )
+        else :
+            print( '\n\n\n' )
+            print( 'No track file was found to load' )
+            print( '\n\n\n' )
         
     def track_limits_to_np_arr(self) :
         bits_list  = self.track_limits

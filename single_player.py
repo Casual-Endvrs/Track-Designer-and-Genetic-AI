@@ -62,6 +62,8 @@ def load_saved_params() :
             if 'car_file' in param_keys :
                 if params['car_file'] is not None :
                     car_file = params['car_file']
+                    if '.' in car_file :
+                        car_file = car_file.split('.')[0]
                     
             if 'FPS' in param_keys :
                 if params['FPS'] is not None :
