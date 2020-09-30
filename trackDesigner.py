@@ -49,7 +49,6 @@ print( '\tpoints and close the loop by clicking on the first point' )
 print( '\tagain. Existing points can be moved by clicking and dragging' )
 print( '\tthem. New points can be added by clicking on the grey' )
 print( '\tline in that is in the middle of the track.' )
-
 print( '--------------' )
 print( 'Available keyboard controls' )
 print( '--------------' )
