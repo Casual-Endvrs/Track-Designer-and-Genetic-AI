@@ -1,0 +1,20 @@
+{
+    "track_file": "track",
+    "display_max_resolution": [
+        1750,
+        950
+    ],
+    "car_file": "car_class.json",
+    "genetic_AI_params_to_load": "AI_class_genetic.json",
+    "track_params_to_load": null,
+    "car_to_load": "car_class.json",
+    "total_num_drivers": 500,
+    "max_drivers_on_track": 15,
+    "FPS": 30,
+    "kinematic_updates_per_frame": 5,
+    "number_vision_rays": 5,
+    "vision_ray_num_history": 0,
+    "training_mode": 1,
+    "maximum_concurrent_training_threads": 4,
+    "maximum_number_cars_per_training_thread": 15
+}

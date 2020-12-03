@@ -17,8 +17,9 @@ import json
 # from time import time as current_time
 
 class raceCar():
-    def __init__(self, track=None, AI_driver=None, car_dimensions=[0,0], number_vision_rays=5, vision_ray_num_history=0, load_car=None):
-        
+    def __init__(self, track=None, AI_driver=None, car_dimensions=[0,0], 
+        number_vision_rays=5, vision_ray_num_history=0, load_car=None, 
+        params_dict=None):
         self.v_0 = 0. # initial velocity
         self.angle = 0. # angle of car
         self.pos = np.array([0., 0.]) # car position --> [x, y] --> [m]
@@ -107,9 +108,24 @@ class raceCar():
         self.crossed_check_point = False
         self.max_number_of_laps = 1 # set to None for unlimited laps
         
-        self.ignore_car_corners = False
+        self.ignore_car_corners = True
         
-        self.load_saved_params(load_car)
+        self.use_check_point_min_time = False # require car to cross a checkpoint every self.max_time_between_check_points seconds
+        
+        self.load_saved_params(params=params_dict, load_car=load_car)
+        
+        if False : # used for diagnostics
+            print( '\n\n\n' )
+            print( 'Car Class - Parameters\n' )
+            print( f't_0_60: {self.t_0_60}' )
+            print( f'full_brakes: {self.full_brakes}' )
+            print( f'max_corner_g: {self.max_corner_g}' )
+            print( f'top_speed: {self.top_speed}' )
+            print( f'max_speed_drag: {self.max_speed_drag}' )
+            print( f'turn_radius: {self.turn_radius}' )
+            print( f'car_dimensions: {self.car_dimensions}' )
+            print( f'updates_per_frame: {self.updates_per_frame}' )
+            print( '\n\n\n' )
     
     def calc_score(self, val=None) :
         avg_speed = self.odometer / self.raceTime
@@ -123,7 +139,7 @@ class raceCar():
         if self.AI_driver is not None :
             self.AI_driver.score = self.score
     
-    def load_saved_params(self, load_car=None, supress_warnings=False) :
+    def load_saved_params(self, params=None, load_car=None, supress_warnings=False) :
         # 't_0_60': 6.5,          # [s]
         # 'full_brakes': 4.125,   # [m/s^2]
         # 'max_corner_g': 0.98,   # [g]
@@ -133,17 +149,24 @@ class raceCar():
         # 'car_dimensions': [4.23, 1.32], # [m]
         # 'updates_per_frame': 5, # [-]
         
-        cwd = os.getcwd()
-        
         if load_car is None :
-            load_car = 'car_class.json'
-        else :
-            load_car = load_car + '.json'
+            load_car = os.path.join( os.getcwd(), 'car_class.json' )
         
-        if os.path.isfile( os.path.join(cwd, load_car) ) :
-            with open( os.path.join( cwd, load_car), 'r' ) as f :
-                params = json.load(f)
+        file_params = None
+        
+        if os.path.isfile( load_car ) :
+            with open( load_car, 'r' ) as f :
+                file_params = json.load(f)
+        
+        if params is None :
+            if file_params is not None :
+                params = file_params
+        else :
+            if file_params is not None :
+                file_params.update(params)
+                params = file_params
             
+        if params is not None :
             param_keys = params.keys()
             
             if 't_0_60' in param_keys :
@@ -174,14 +197,13 @@ class raceCar():
                         self.max_speed_drag = self.max_speed_drag * self.top_speed
                 else :
                     self.max_speed_drag = 1.1 * self.top_speed
-            
             if 'turn_radius' in param_keys :
                 if params['turn_radius'] is not None :
                     self.turn_radius = params['turn_radius']
             
-            if 'updates_per_frame' in param_keys :
-                if params['updates_per_frame'] is not None :
-                    self.updates_per_frame = int( params['updates_per_frame'] )
+            if 'kinematic_updates_per_frame' in param_keys :
+                if params['kinematic_updates_per_frame'] is not None :
+                    self.updates_per_frame = int( params['kinematic_updates_per_frame'] )
             
             if 'car_dimensions' in param_keys :
                 if params['car_dimensions'] is not None :
@@ -225,6 +247,7 @@ class raceCar():
         if self.AI_driver is not None :
             AI_inputs = []
             distance_inputs = self.get_distances()
+            
             if self.input_distance_history :
                 self.past_distances[:-1] = self.past_distances[1:]
                 self.past_distances[-1] = distance_inputs
@@ -265,11 +288,13 @@ class raceCar():
                 if self.test_car_hit_wall() :
                     if not self.ignore_car_corners :
                         self.calc_score()
+                        # print( 'first ending' )
                         return True
                 [pxl, distance] = self.raceTrack.find_edge_distance(self.pos_pxl, self.angle, location_is_pxl=self.location_is_pxl, max_vision_distance=self.max_vision_distance)
                 # [pxl, distance] = self.raceTrack.obsticle_detection(self.pos_pxl, self.angle, location_is_pxl=self.location_is_pxl, max_distance=self.max_vision_distance)
                 if distance < 1e-1 : # test if there was a crash
                     self.calc_score()
+                    # print( 'hit wall' )
                     return True # there was a crash
             
             # update steering
@@ -279,11 +304,11 @@ class raceCar():
                 self.steering = -1.
             angle_before = self.angle
             
-            turn_radius = self.turn_radius
-            if self.vel_mag > self.v_max_full_steering_loc :
-                turn_radius = self.vel_mag**2 / self.max_corner_ms2
+            #turn_radius = self.turn_radius
+            #if self.vel_mag > self.v_max_full_steering_loc :
+            #    turn_radius = self.vel_mag**2 / self.max_corner_ms2
             
-            self.angle += self.steering*self.vel_mag*dt/turn_radius
+            self.angle += self.steering*dt # *self.vel_mag/turn_radius
             
             angle_avg = (angle_before+self.angle) / 2.
             self.angle = self.angle % self.two_pi
@@ -335,6 +360,7 @@ class raceCar():
                 return True
         elif start_finish_line_crossed_direction == -1 :
             self.calc_score(0)
+            # print( 'start/finish line wrong direction' )
             return True
         
         
@@ -343,8 +369,11 @@ class raceCar():
         if check_point_cross_direction == 1 :
             self.time_since_last_check_point = 0
             self.check_points_crossed += 1
+            if not self.use_check_point_min_time :
+                self.crossed_check_point = True
         elif check_point_cross_direction == -1 :
             self.calc_score()
+            # print( 'check points wrong direction' )
             return True
         
         return False # there was no crash
@@ -492,7 +521,6 @@ def create_default_params():
         'max_speed_drag': 1.1,  # ratio of max_speed_drag/top_speed if <2, else [m/s]
         'turn_radius': 5.5,     # [m]
         'car_dimensions': [4.23, 1.32], # [m]
-        'updates_per_frame': 5, # [-]
         }
     
     with open( os.path.join(os.getcwd(), 'car_class.json'), 'w' ) as fil :

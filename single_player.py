@@ -53,22 +53,25 @@ def load_saved_params() :
             if 'track_file' in param_keys :
                 if params['track_file'] is not None :
                     track_file = params['track_file']
-                    
+                    if '_image' in track_file or '.' in track_file :
+                        track_file = track_file.split('.')[0]
+                        track_file = track_file.split('_image')[0]
+            
             if 'display_max_resolution' in param_keys :
                 if params['display_max_resolution'] is not None :
                     display_max_resolution = np.array([ int(params['display_max_resolution'][0]), 
                                                         int(params['display_max_resolution'][1]) ])
-                    
+            
             if 'car_file' in param_keys :
                 if params['car_file'] is not None :
                     car_file = params['car_file']
                     if '.' in car_file :
                         car_file = car_file.split('.')[0]
-                    
+            
             if 'FPS' in param_keys :
                 if params['FPS'] is not None :
                     FPS = int( params['FPS'] )
-                    
+            
             if 'number_vision_rays' in param_keys :
                 if params['number_vision_rays'] is not None :
                     number_vision_rays = int( params['number_vision_rays'] )
@@ -78,24 +81,29 @@ def load_saved_params() :
             with open( os.path.join( cwd, params_file), 'r' ) as f :
                 params = json.load(f)
                 param_keys = params.keys()
-                
+            
             if 'track_file' in param_keys :
                 if params['track_file'] is not None :
                     track_file = params['track_file']
-                    
+                    if '_image' in track_file or '.' in track_file :
+                        track_file = track_file.split('.')[0]
+                        track_file = track_file.split('_image')[0]
+            
             if 'display_max_resolution' in param_keys :
                 if params['display_max_resolution'] is not None :
                     display_max_resolution = np.array([ int(params['display_max_resolution'][0]), 
                                                         int(params['display_max_resolution'][1]) ])
-                    
+            
             if 'car_file' in param_keys :
                 if params['car_file'] is not None :
                     car_file = params['car_file']
-                    
+                    if '.' in car_file :
+                        car_file = car_file.split('.')[0]
+            
             if 'FPS' in param_keys :
                 if params['FPS'] is not None :
                     FPS = int( params['FPS'] )
-                    
+            
             if 'number_vision_rays' in param_keys :
                 if params['number_vision_rays'] is not None :
                     number_vision_rays = int( params['number_vision_rays'] )

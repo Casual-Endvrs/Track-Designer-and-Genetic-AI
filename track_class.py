@@ -45,8 +45,10 @@ class save_track_params() :
 class raceTrack() :
     def __init__(self, track_file, track_params_to_load=None) :
         self.working_folder, self.name_base = os.path.split( track_file )
-        self.track_png = self.name_base + '_image.png'
-        self.pkl_file = self.name_base + '.pkl'
+        self.name_base = self.name_base.split('_')[:-1]
+        self.name_base = '_'.join( self.name_base )
+        self.track_png = os.path.join(self.working_folder, self.name_base + '_image.png')
+        self.pkl_file = self.name_base + '_params.pkl'
         
         self.window_width = None
         self.window_height = None
